@@ -1,0 +1,57 @@
+load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library", "cc_test")
+
+genrule(
+    name = "generate_parser",
+    srcs = ["src/Tisa.g4"],
+    outs = [
+        "src/TisaLexer.cpp",
+        "src/TisaLexer.h",
+        "src/TisaParser.cpp",
+        "src/TisaParser.h",
+    ],
+    cmd = "$(JAVA) -jar $(location @antlr4_tool//file) -Dlanguage=Cpp -no-listener " +
+          "-Xexact-output-dir -o $(RULEDIR)/src $(location src/Tisa.g4)",
+    toolchains = ["@bazel_tools//tools/jdk:current_java_runtime"],
+    tools = ["@antlr4_tool//file"],
+)
+
+cc_library(
+    name = "ast",
+    hdrs = ["src/ast.h"],
+    deps = ["@boost.multiprecision"],
+)
+
+cc_library(
+    name = "parser",
+    srcs = [
+        "src/TisaLexer.cpp",
+        "src/TisaLexer.h",
+        "src/TisaParser.cpp",
+        "src/TisaParser.h",
+        "src/parser.cc",
+    ],
+    hdrs = ["src/parser.h"],
+    deps = [":ast", "@antlr4-cpp-runtime"],
+)
+
+cc_library(
+    name = "semantics",
+    srcs = ["src/execute.cc", "src/validate.cc"],
+    hdrs = ["src/semantics.h"],
+    deps = [":ast", "@z3//:z3_static"],
+)
+
+cc_binary(
+    name = "tisa",
+    srcs = ["src/main.cc"],
+    deps = [":parser", ":semantics"],
+)
+
+cc_test(
+    name = "tisa_test",
+    size = "small",
+    srcs = ["tests/tisa_test.cc"],
+    args = ["$(location examples/zero.tisa)", "$(location examples/mma.tisa)", "$(location examples/slice_copy.tisa)"],
+    data = glob(["examples/*.tisa"]),
+    deps = [":parser", ":semantics"],
+)

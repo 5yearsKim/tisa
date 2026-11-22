@@ -1,0 +1,10 @@
+state {
+  buf: i8[6]
+}
+
+instruction slice_copy(dst: u32, src: u32, len: u32) {
+  requires src + len <= 6 && dst + len <= 6
+  reads buf[src : src + len]
+  writes buf[dst : dst + len]
+  ensures buf'[dst : dst + len] = buf[src : src + len]
+}

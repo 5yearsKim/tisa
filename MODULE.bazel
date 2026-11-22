@@ -1,0 +1,14 @@
+module(name = "tisa")
+
+bazel_dep(name = "antlr4-cpp-runtime", version = "4.13.2.bcr.2")
+bazel_dep(name = "boost.multiprecision", version = "1.90.0.bcr.1")
+bazel_dep(name = "rules_cc", version = "0.2.17")
+bazel_dep(name = "z3", version = "4.15.2")
+
+http_file = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "http_file")
+http_file(
+    name = "antlr4_tool",
+    downloaded_file_path = "antlr-4.13.2-complete.jar",
+    sha256 = "eae2dfa119a64327444672aff63e9ec35a20180dc5b8090b7a6ab85125df4d76",
+    urls = ["https://www.antlr.org/download/antlr-4.13.2-complete.jar"],
+)

@@ -1,0 +1,10 @@
+state {
+  acc: Tile<i32, 2, 2>[2]
+}
+
+instruction zero(c: u32) {
+  requires c < 2
+  reads none
+  writes acc[c]
+  ensures acc'[c] = [[0, 0], [0, 0]]
+}

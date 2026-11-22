@@ -1,0 +1,11 @@
+state {
+  spad: Tile<i8, 2, 2>[2]
+  acc:  Tile<i32, 2, 2>[2]
+}
+
+instruction mma(c: u32, a: u32, b: u32) {
+  requires c < 2 && a < 2 && b < 2
+  reads spad[a], spad[b], acc[c]
+  writes acc[c]
+  ensures acc'[c] = wrap_i32(acc[c] + matmul_int(spad[a], spad[b]))
+}
